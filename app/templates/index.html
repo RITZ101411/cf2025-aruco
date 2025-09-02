@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>js-aruco マーカー検出</title>
+  <style>
+    video, canvas {
+      width: 640px;
+      height: 480px;
+      border: 1px solid black;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/gh/jcmellado/js-aruco@master/src/cv.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/jcmellado/js-aruco@master/src/aruco.js"></script>
+</head>
+<body>
+  <h2>js-aruco マーカー検出</h2>
+  <video id="videoInput" autoplay muted></video>
+  <canvas id="canvasOutput" width="640" height="480"></canvas>
+  <p id="status">カメラを起動中...</p>
+
+  <script src="static/js/index.js"></script>
+</body>
+</html>
