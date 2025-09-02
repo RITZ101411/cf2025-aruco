@@ -4,13 +4,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import insert, select
 from pydantic import BaseModel
 
-from config.database import get_async_session
+from db.session import get_async_session
 from models.users import User
 
-router = APIRouter(prefix="/users", tags=["user"])
+from schemas.user import UserBalanceRequest
 
-class UserBalanceRequest(BaseModel):
-    id: int
+router = APIRouter(prefix="/users", tags=["user"])
 
 @router.post("/get-balance")
 async def get_balance(

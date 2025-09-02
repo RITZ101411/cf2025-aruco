@@ -3,18 +3,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from pydantic import BaseModel
 
-from config.database import get_async_session
+from db.session import get_async_session
 from models.users import User
-from utils.verify_apikey import verify_api_key
+from core.verify_apikey import verify_api_key
 
 router = APIRouter(prefix="/system", tags=["system"])
 
-class UserIdRequest(BaseModel):
-    id: int
-
-class AddBalanceRequest(BaseModel):
-    id: int
-    value: int
+from schemas.system import UserIdRequest, AddBalanceRequest
 
 @router.get("/get-users")
 async def get_users(

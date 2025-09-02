@@ -5,7 +5,8 @@ from fastapi.responses import HTMLResponse
 from jinja2 import Environment, FileSystemLoader
 from fastapi.middleware.cors import CORSMiddleware
 
-from config.database import engine, Base
+from db.session import engine
+from db.base import Base
 from routers import user, game, system
 
 @asynccontextmanager
