@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, File, UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from pydantic import BaseModel
@@ -10,6 +10,8 @@ from core.verify_apikey import verify_api_key
 router = APIRouter(prefix="/system", tags=["system"])
 
 from schemas.system import UserIdRequest, AddBalanceRequest
+
+from marker.detect import detect
 
 @router.get("/get-users")
 async def get_users(
@@ -80,3 +82,16 @@ async def reset_user(
         }
     else:
         raise HTTPException(status_code=404, detail="User not found")
+    
+@router.post("/get-user-marker")
+async def get_user_marker(
+    imagefile: UploadFile = File(...),
+    session: AsyncSession = Depends(get_async_session),
+    api_key: str = Depends(verify_api_key)
+):
+    print("マーカー受け取りマーカーID取得ユーザー取得ユーザー残高取得して返す")
+
+    id: int = await detect(imagefile)
+    if id is []:
+        raise ValueError({"No": "No"})
+    return {"id": id}
