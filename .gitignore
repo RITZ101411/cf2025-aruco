@@ -13,3 +13,5 @@ settings.json
 /test/
 
 .DS_Store
+
+.venv
