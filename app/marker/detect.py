@@ -5,8 +5,6 @@ aruco = cv2.aruco
 dictionary = aruco.getPredefinedDictionary(aruco.DICT_4X4_1000)
 
 async def detect(inputImage):
-    print("Detect!"+inputImage.filename)
-
     file_bytes = await inputImage.read()
     np_array = np.frombuffer(file_bytes, np.uint8)
     image = cv2.imdecode(np_array, cv2.IMREAD_COLOR)

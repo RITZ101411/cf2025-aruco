@@ -89,8 +89,6 @@ async def get_user_marker(
     session: AsyncSession = Depends(get_async_session),
     api_key: str = Depends(verify_api_key)
 ):
-    print("マーカー受け取りマーカーID取得ユーザー取得ユーザー残高取得して返す")
-
     id: int = await detect(imagefile)
     if id is []:
         raise ValueError({"No": "No"})
