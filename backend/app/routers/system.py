@@ -9,7 +9,7 @@ from core.verify_apikey import verify_api_key
 
 router = APIRouter(prefix="/system", tags=["system"])
 
-from schemas.system import UserIdRequest, AddBalanceRequest
+from schemas.system import UserIdRequest, AddBalanceRequest, AddRewardRequest, AddRewardResponse
 
 from marker.detect import detect
 
@@ -93,3 +93,15 @@ async def get_user_marker(
     if id is []:
         raise ValueError({"No": "No"})
     return {"id": id}
+
+@router.post("/add-rewards", response_model=AddRewardResponse)
+async def add_rewards(payload: AddRewardRequest, api_key: str = Depends(lambda: "TESTKEY")):
+
+    print("Received reward request:", payload)
+
+    # 仮の固定レスポンス
+    return AddRewardResponse(
+        status="success",
+        reward_added=50,
+        new_balance=150,
+    )
