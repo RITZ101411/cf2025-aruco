@@ -1,60 +1,51 @@
 import React from "react";
-import marker from "../assets/images/aruco_0.png";
-import styles from "./HomePage12.module.css";
+import styles from "./Home.module.css";
 
-const rankingData = [
-  { rank: 1, name: "hogeh...", pt: 100045 },
-  { rank: 2, name: "fugaf...", pt: 100045 },
-  { rank: 3, name: "piyop...", pt: 100045 },
+const ranking = [
+  { name: "HogeHoge", point: 13498 },
+  { name: "FugaFuga", point: 6668 },
+  { name: "PiyoPiyo", point: 6668 },
 ];
 
-const Home: React.FC = () => (
-  <div className={styles.container}>
-    <div className={styles.frame}>
-      <div className={styles.rectangle1}></div>
-      <div className={styles.panel}></div>
-      <img src={marker} alt="Marker" className={styles.marker} />
-      <div className={styles.balance}>
-        <div className={styles.balanceRect}></div>
-        <span className={styles.balanceLabel}>残高</span>
-        <span className={styles.balanceValue}>1000</span>
-        <span className={styles.balancePt}>Pt</span>
-      </div>
-      <div className={styles.ranking}>
-        <div className={styles.rankingTitle}>ランキング</div>
-        <div className={styles.rankingElements}>
-          {rankingData.map((item, i) => (
-            <div className={styles.rankingItem} style={{ top: `${i * 62}px` }} key={item.rank}>
-              <div className={styles.rankingEllipse}></div>
-              <div className={styles.rankingNumber}>{item.rank}</div>
-              <div className={styles.rankingBalance}>
-                <div className={styles.rankingBalanceRect}></div>
-                <span className={styles.rankingBalanceLabel}>{item.name}</span>
-                <span className={styles.rankingBalanceValue}>{item.pt}</span>
-                <span className={styles.rankingBalancePt}>Pt</span>
-              </div>
-            </div>
-          ))}
+export default function Home() {
+  return (
+    <div className={styles.root}>
+      <div className={styles.background}>
+        <div className={styles.topPanel}>
+          <div className={styles.marker}>
+            <img src="/images/marker.svg" alt="marker" />
+          </div>
+          <div className={styles.balanceCard}>
+            <span className={styles.balanceLabel}>残高</span>
+            <span className={styles.balanceValue}>0</span>
+            <span className={styles.balanceUnit}>Pt</span>
+          </div>
         </div>
-      </div>
-      <div className={styles.profile}>
-        <div className={styles.profilePanel}>
-          <div className={styles.profilePanelRect}></div>
-          <div className={styles.profileElements}>
-            <div className={styles.profileTitle}>表示名</div>
-            <div className={styles.profileTotalPt}>
-              <span className={styles.profileTotalLabel}>累計獲得Pt</span>
-              <span className={styles.profileTotalValue}>9998</span>
+        <div className={styles.cards}>
+          <div className={styles.profile}>
+            <div className={styles.profileName}>田中太郎さん</div>
+            <div className={styles.profileRow}>
+              <span className={styles.profileLabel}>プレイ数</span>
+              <span className={styles.profileValue}>34回</span>
             </div>
-            <div className={styles.profilePlayCount}>
-              <span className={styles.profilePlayLabel}>プレイ数</span>
-              <span className={styles.profilePlayValue}>999</span>
+            <div className={styles.profileRow}>
+              <span className={styles.profileLabel}>累計獲得Pt</span>
+              <span className={styles.profileValue}>6666Pt</span>
             </div>
+          </div>
+          <div className={styles.ranking}>
+            <div className={styles.rankingTitle}>ランキング</div>
+            {ranking.map((r, i) => (
+              <div className={styles.rankingRow} key={r.name}>
+                <span className={styles.rankingLabel}>
+                  {i + 1}. {r.name}
+                </span>
+                <span className={styles.rankingValue}>{r.point}Pt</span>
+              </div>
+            ))}
           </div>
         </div>
       </div>
     </div>
-  </div>
-);
-
-export default Home;
+  );
+}
