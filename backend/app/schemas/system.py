@@ -17,3 +17,6 @@ class AddRewardResponse(BaseModel):
     status: str
     reward_added: int
     new_balance: int
+
+class RegisterRequest(BaseModel):
+    user_id: str

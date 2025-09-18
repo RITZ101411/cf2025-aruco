@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import styles from "./Home.module.css";
 import type { User, RankingUser } from "../types/User";
-import { getUsers } from "../api/apiClient";
+import { getUsers, init } from "../api/apiClient";
 
 export default function Home() {
   const [ranking, setRanking] = useState<RankingUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [sessionId, setSessionId] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchRanking = async () => {
@@ -27,6 +28,16 @@ export default function Home() {
         setLoading(false);
       }
     };
+    const initUser = async () => {
+      try {
+        const data = await init();
+        setSessionId(data.session_id);
+      } catch (error) {
+        console.error("Init failed:", error);
+      }
+    };
+
+    initUser();
     fetchRanking();
   }, []);
 
@@ -45,7 +56,7 @@ export default function Home() {
         </div>
         <div className={styles.cards}>
           <div className={styles.profile}>
-            <div className={styles.profileName}>田中太郎さん</div>
+            <div className={styles.profileName}>{sessionId}</div>
             <div className={styles.profileRow}>
               <span className={styles.profileLabel}>プレイ数</span>
               <span className={styles.profileValue}>34回</span>

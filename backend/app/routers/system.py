@@ -1,24 +1,43 @@
-from fastapi import APIRouter, Depends, HTTPException, File, UploadFile
+from fastapi import APIRouter, Depends, HTTPException, File, UploadFile, Response, Cookie
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, desc
 from pydantic import BaseModel
 
 from db.session import get_async_session
 from models.users import User
 from core.verify_apikey import verify_api_key
 
-router = APIRouter(prefix="/system", tags=["system"])
+router = APIRouter(prefix="/api", tags=["api"])
 
-from schemas.system import UserIdRequest, AddBalanceRequest, AddRewardRequest, AddRewardResponse
+from schemas.system import UserIdRequest, AddBalanceRequest, AddRewardRequest, AddRewardResponse, RegisterRequest
 
 from marker.detect import detect
+import uuid
+
+@router.get("/init")
+async def init(
+    response: Response,
+    session: AsyncSession = Depends(get_async_session),
+    session_id: str | None = Cookie(default=None)
+):
+    if session_id is None:
+        new_session_id = str(uuid.uuid4())
+
+        new_user = User(user_id=new_session_id, balance=0)
+        session.add(new_user)
+        await session.commit()
+        response.set_cookie("session_id", new_session_id, httponly=True)
+        return {"message": "new user created", "session_id": new_session_id}
+    else:
+        return {"message": "user already exists", "session_id": session_id}
 
 @router.get("/get-users")
 async def get_users(
     session: AsyncSession = Depends(get_async_session),
-    api_key: str = Depends(verify_api_key)
 ):
-    result = await session.execute(select(User))
+    result = await session.execute(
+        select(User).order_by(desc(User.balance))
+    )
     users = result.scalars().all()
     return users
 
@@ -43,6 +62,7 @@ async def get_user(
         }
     else:
         raise HTTPException(status_code=404, detail="User not found")
+    
 
 @router.post("/set-balance")
 async def set_balance(
@@ -95,7 +115,10 @@ async def get_user_marker(
     return {"id": id}
 
 @router.post("/add-rewards", response_model=AddRewardResponse)
-async def add_rewards(payload: AddRewardRequest, api_key: str = Depends(lambda: "TESTKEY")):
+async def add_rewards(
+    payload: AddRewardRequest,
+    api_key: str = Depends(verify_api_key)
+    ):
 
     print("Received reward request:", payload)
 

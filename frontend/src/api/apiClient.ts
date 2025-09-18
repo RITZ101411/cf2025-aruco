@@ -5,21 +5,33 @@ import type { User } from "../types/User";
 const apiUrl = "/api";
 
 const api: AxiosInstance = axios.create({
-  baseURL: apiUrl,
-  headers: {
-    "Content-Type": "application/json",
-  },
+    baseURL: apiUrl,
+    headers: {
+        "Content-Type": "application/json",
+    },
+    withCredentials: true,
 });
 
 //POST
-export async function postRequest<T>(endpoint: string, body: any, token?: string): Promise<T> {
-  const res = await api.post(endpoint, body, {
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
-  });
-  return res.data;
+export async function postRequest<T>(endpoint: string, body: unknown, token?: string): Promise<T> {
+    const res = await api.post(endpoint, body, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
+    return res.data;
+}
+
+//GET
+export async function getRequest<T>(endpoint: string, token?: string): Promise<T> {
+    const res = await api.get(endpoint, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
+    return res.data;
 }
 
 export async function getUsers(): Promise<User[]> {
-  const res = await api.get<User[]>("/get-users");
-  return res.data;
+    return await getRequest<User[]>("/get-users");
+}
+
+export async function init(): Promise<{ session_id: string }> {
+    return await getRequest<{ session_id: string }>("/init");
 }

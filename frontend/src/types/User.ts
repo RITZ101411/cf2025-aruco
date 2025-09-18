@@ -4,7 +4,7 @@ export type User = {
   balance: number;
 };
 
-type RankingUser = {
+export type RankingUser = {
   name: string;
   point: number;
 };

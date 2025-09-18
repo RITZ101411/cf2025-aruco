@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from db.session import engine
 from db.base import Base
-from routers import user, game, system
+from routers import system
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -20,8 +20,6 @@ app = FastAPI(lifespan=lifespan)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 env = Environment(loader=FileSystemLoader("./templates"))
 
-app.include_router(user.router, tags=["user"])
-app.include_router(game.router, tags=["game"])
 app.include_router(system.router, tags=["system"])
 
 router = APIRouter()
