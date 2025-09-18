@@ -1,19 +1,43 @@
-import React from "react";
+import { useEffect, useState } from "react";
 import styles from "./Home.module.css";
+import type { User, RankingUser } from "../types/User";
 
-const ranking = [
-  { name: "HogeHoge", point: 13498 },
-  { name: "FugaFuga", point: 6668 },
-  { name: "PiyoPiyo", point: 6668 },
-];
+import { getPost, getPosts, createPost, updatePost, deletePost } from "../api/apiClient"
+
 
 export default function Home() {
+  const [ranking, setRanking] = useState<RankingUser[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchRanking = async () => {
+      try {
+        const res = await fetch("/api/get-users");
+        if (!res.ok) throw new Error("ランキング取得に失敗しました");
+        const data = await res.json();
+
+        setRanking(
+          data.map((u: User) => ({
+            name: u.user_id || "NoName",
+            point: u.balance || 0,
+          }))
+        );
+      } catch (e: any) {
+        setError(e.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchRanking();
+  }, []);
+
   return (
     <div className={styles.root}>
       <div className={styles.background}>
         <div className={styles.topPanel}>
           <div className={styles.marker}>
-            <img src="/images/marker.svg" alt="marker" />
+            <img src="/src/assets/images/marker/marker.png" alt="marker" />
           </div>
           <div className={styles.balanceCard}>
             <span className={styles.balanceLabel}>残高</span>
@@ -35,14 +59,22 @@ export default function Home() {
           </div>
           <div className={styles.ranking}>
             <div className={styles.rankingTitle}>ランキング</div>
-            {ranking.map((r, i) => (
-              <div className={styles.rankingRow} key={r.name}>
-                <span className={styles.rankingLabel}>
-                  {i + 1}. {r.name}
-                </span>
-                <span className={styles.rankingValue}>{r.point}Pt</span>
-              </div>
-            ))}
+            {loading ? (
+              <div>読み込み中...</div>
+            ) : error ? (
+              <div style={{ color: 'red' }}>{error}</div>
+            ) : ranking.length === 0 ? (
+              <div>ランキングデータがありません</div>
+            ) : (
+              ranking.map((r, i) => (
+                <div className={styles.rankingRow} key={r.name + i}>
+                  <span className={styles.rankingLabel}>
+                    {i + 1}. {r.name}
+                  </span>
+                  <span className={styles.rankingValue}>{r.point}Pt</span>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </div>
