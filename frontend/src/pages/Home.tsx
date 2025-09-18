@@ -1,9 +1,7 @@
 import { useEffect, useState } from "react";
 import styles from "./Home.module.css";
 import type { User, RankingUser } from "../types/User";
-
-import { getPost, getPosts, createPost, updatePost, deletePost } from "../api/apiClient"
-
+import { getUsers } from "../api/apiClient";
 
 export default function Home() {
   const [ranking, setRanking] = useState<RankingUser[]>([]);
@@ -13,18 +11,18 @@ export default function Home() {
   useEffect(() => {
     const fetchRanking = async () => {
       try {
-        const res = await fetch("/api/get-users");
-        if (!res.ok) throw new Error("ランキング取得に失敗しました");
-        const data = await res.json();
+        const users = await getUsers();
+        if (!Array.isArray(users)) throw new Error("ランキング取得に失敗しました");
 
         setRanking(
-          data.map((u: User) => ({
-            name: u.user_id || "NoName",
-            point: u.balance || 0,
+          users.map((u: User) => ({
+            name: u.user_id ?? "NoName",
+            point: u.balance ?? 0,
           }))
         );
       } catch (e: any) {
-        setError(e.message);
+        setError(e?.message ?? "不明なエラーが発生しました");
+        setRanking([]);
       } finally {
         setLoading(false);
       }

@@ -1,39 +1,25 @@
 import axios from "axios";
+import type { AxiosInstance } from "axios";
+import type { User } from "../types/User";
 
-import type { Post } from "../types/Post"
+const apiUrl = "/api";
 
-const api = axios.create({
-  baseURL: "http://0.0.0.0:8000/api",
+const api: AxiosInstance = axios.create({
+  baseURL: apiUrl,
   headers: {
     "Content-Type": "application/json",
   },
 });
 
-// Post一覧取得
-export const getPosts = async (): Promise<Post[]> => {
-  const res = await api.get<Post[]>("/posts");
+//POST
+export async function postRequest<T>(endpoint: string, body: any, token?: string): Promise<T> {
+  const res = await api.post(endpoint, body, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  });
   return res.data;
-};
+}
 
-// Post単体取得
-export const getPost = async (id: number): Promise<Post> => {
-  const res = await api.get<Post>(`/posts/${id}`);
+export async function getUsers(): Promise<User[]> {
+  const res = await api.get<User[]>("/get-users");
   return res.data;
-};
-
-// Post作成
-export const createPost = async (post: Omit<Post, "id">): Promise<Post> => {
-  const res = await api.post<Post>("/posts", post);
-  return res.data;
-};
-
-// Post更新
-export const updatePost = async (id: number, post: Partial<Post>): Promise<Post> => {
-  const res = await api.put<Post>(`/posts/${id}`, post);
-  return res.data;
-};
-
-// Post削除
-export const deletePost = async (id: number): Promise<void> => {
-  await api.delete(`/posts/${id}`);
-};
+}
