@@ -20,3 +20,7 @@ class AddRewardResponse(BaseModel):
 
 class RegisterRequest(BaseModel):
     user_id: str
+
+class SetDisplayNameRequest(BaseModel):
+    id: int
+    display_name: str

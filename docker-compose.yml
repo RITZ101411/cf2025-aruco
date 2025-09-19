@@ -5,7 +5,7 @@ services:
       dockerfile: Dockerfile
     container_name: backend-container
     ports:
-      - "8000:8000"
+      - "8001:8000"
     volumes:
       - ./backend/app:/app
     env_file:
@@ -24,7 +24,7 @@ services:
       MYSQL_DATABASE: mydb
       TZ: "Asia/Tokyo"
     ports:
-      - "3306:3306"
+      - "3307:3306"
     volumes:
       - db_data:/var/lib/mysql
     healthcheck:

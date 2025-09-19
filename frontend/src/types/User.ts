@@ -1,8 +1,10 @@
 export type User = {
-  id: number;
-  user_id: string;
+  session_id: string;
+  display_name: string | null;
   balance: number;
+  total_plays: number;
 };
+
 
 export type RankingUser = {
   name: string;

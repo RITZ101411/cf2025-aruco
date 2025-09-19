@@ -32,6 +32,7 @@ export async function getUsers(): Promise<User[]> {
     return await getRequest<User[]>("/get-users");
 }
 
-export async function init(): Promise<{ session_id: string }> {
-    return await getRequest<{ session_id: string }>("/init");
-}
+export const init = async (): Promise<User> => {
+    const res = await axios.get("/api/init");
+    return res.data;
+  };

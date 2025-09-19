@@ -14,6 +14,24 @@ from schemas.system import UserIdRequest, AddBalanceRequest, AddRewardRequest, A
 from marker.detect import detect
 import uuid
 
+@router.get("/me")
+async def get_me(session: AsyncSession = Depends(get_async_session), session_id: str | None = Cookie(default=None)):
+    if session_id is None:
+        raise HTTPException(status_code=401, detail="No session_id")
+    result = await session.execute(select(User).filter(User.session_id == session_id))
+    user = result.scalars().first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return {
+        "session_id": user.session_id,
+        "display_name": user.display_name,
+        "balance": user.balance,
+        "total_plays": user.total_plays,
+        "balance_resets_at": user.balance_resets_at,
+        "last_active_at": user.last_active_at,
+        "created_at": user.created_at
+    }
+
 @router.get("/init")
 async def init(
     response: Response,
@@ -23,7 +41,7 @@ async def init(
     if session_id is None:
         new_session_id = str(uuid.uuid4())
 
-        new_user = User(user_id=new_session_id, balance=0)
+        new_user = User(session_id=new_session_id, balance=0)
         session.add(new_user)
         await session.commit()
         response.set_cookie("session_id", new_session_id, httponly=True)
@@ -54,11 +72,13 @@ async def get_user(
     if user:
         return {
             "id": user.id,
-            "user_id": user.user_id,
+            "session_id": user.session_id,
+            "display_name": user.display_name,
             "balance": str(user.balance),
-            "reset_at": user.reset_at.isoformat() if user.reset_at else None,
-            "created_at": user.created_at.isoformat(),
-            "updated_at": user.updated_at.isoformat()
+            "total_plays": user.total_plays,
+            "balance_resets_at": user.balance_resets_at.isoformat() if user.balance_resets_at else None,
+            "last_active_at": user.last_active_at.isoformat(),
+            "created_at": user.created_at.isoformat()
         }
     else:
         raise HTTPException(status_code=404, detail="User not found")
@@ -82,26 +102,6 @@ async def set_balance(
     else:
         raise HTTPException(status_code=404, detail="User not found")
 
-@router.post("/reset-user")
-async def reset_user(
-    payload: UserIdRequest,
-    session: AsyncSession = Depends(get_async_session),
-    api_key: str = Depends(verify_api_key)
-):
-    stmt = select(User).filter(User.id == payload.id)
-    result = await session.execute(stmt)
-    user = result.scalars().first()
-
-    if user:
-        user.balance = 0
-        await session.commit()
-        await session.refresh(user)
-        return {
-            "message": f"User {user.user_id} has been reset.",
-            "balance": str(user.balance),
-        }
-    else:
-        raise HTTPException(status_code=404, detail="User not found")
     
 @router.post("/get-user-marker")
 async def get_user_marker(
@@ -110,7 +110,7 @@ async def get_user_marker(
     api_key: str = Depends(verify_api_key)
 ):
     id: int = await detect(imagefile)
-    if id is []:
+    if not id:
         raise ValueError({"No": "No"})
     return {"id": id}
 
