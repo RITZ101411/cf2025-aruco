@@ -8,7 +8,7 @@ class AddBalanceRequest(BaseModel):
     value: int
 
 class AddRewardRequest(BaseModel):
-    user_id: str
+    user_id: int
     game_code: str
     score: int
     clear_time: float
@@ -17,6 +17,7 @@ class AddRewardResponse(BaseModel):
     status: str
     reward_added: int
     new_balance: int
+    total_balance: int
 
 class RegisterRequest(BaseModel):
     user_id: str

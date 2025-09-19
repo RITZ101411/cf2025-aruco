@@ -9,6 +9,7 @@ class User(Base):
     display_name = Column(String(50), nullable=True)
     balance = Column(Integer, nullable=False, default=0)
     total_plays = Column(Integer, nullable=False, default=0)
+    total_balance = Column(Integer, nullable=False, default=0)
     balance_resets_at = Column(DateTime, nullable=True)
     last_active_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
     created_at = Column(DateTime, server_default=func.now())

@@ -10,6 +10,7 @@ export default function Home() {
   const [_, setSessionId] = useState<string | null>(null);
   const [displayName, setDisplayName] = useState<string>("NoName");
   const [totalPlays, setTotalPlays] = useState<number>(0);
+  const [totalBalance, setTotalBalance] = useState<number>(0);
   const [balance, setBalance] = useState<number>(0);
   const [userId, setUserId] = useState<number>(0);
 
@@ -21,6 +22,7 @@ export default function Home() {
         setDisplayName(me.display_name ?? "NoName");
         setBalance(me.balance ?? 0);
         setTotalPlays(me.total_plays ?? 0);
+        setTotalBalance(me.total_balance ?? 0);
         setUserId(me.user_id ?? 0);
 
         const users = await getUsers();
@@ -29,7 +31,7 @@ export default function Home() {
         setRanking(
           users.map((u: User) => ({
             name: u.display_name ?? "NoName",
-            point: u.balance ?? 0,
+            point: u.total_balance ?? 0,
           }))
         );
       } catch (e: any) {
@@ -66,7 +68,7 @@ export default function Home() {
             </div>
             <div className={styles.profileRow}>
               <span className={styles.profileLabel}>累計獲得Pt</span>
-              <span className={styles.profileValue}>{balance} Pt</span>
+              <span className={styles.profileValue}>{totalBalance} Pt</span>
             </div>
           </div>
           <div className={styles.ranking}>

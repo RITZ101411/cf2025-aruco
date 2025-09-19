@@ -3,6 +3,7 @@ export type User = {
   display_name: string | null;
   balance: number;
   total_plays: number;
+  total_balance: number;
   user_id: number;
 };
 

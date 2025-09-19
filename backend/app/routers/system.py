@@ -6,6 +6,7 @@ from pydantic import BaseModel
 from db.session import get_async_session
 from models.users import User
 from core.verify_apikey import verify_api_key
+from db.game_rewards import get_reward_points
 
 router = APIRouter(prefix="/api", tags=["api"])
 
@@ -57,6 +58,7 @@ async def get_or_init_me(
         "display_name": user.display_name,
         "balance": user.balance,
         "total_plays": user.total_plays,
+        "total_balance": user.total_balance,
         "balance_resets_at": user.balance_resets_at,
         "last_active_at": user.last_active_at,
         "created_at": user.created_at
@@ -69,7 +71,7 @@ async def get_users(
     session: AsyncSession = Depends(get_async_session),
 ):
     result = await session.execute(
-        select(User).order_by(desc(User.balance))
+        select(User).order_by(desc(User.total_balance))
     )
     users = result.scalars().all()
     return users
@@ -91,6 +93,7 @@ async def get_user(
             "display_name": user.display_name,
             "balance": str(user.balance),
             "total_plays": user.total_plays,
+            "total_balance": user.total_balance,
             "balance_resets_at": user.balance_resets_at.isoformat() if user.balance_resets_at else None,
             "last_active_at": user.last_active_at.isoformat(),
             "created_at": user.created_at.isoformat()
@@ -123,26 +126,34 @@ async def get_user_marker(
     session: AsyncSession = Depends(get_async_session),
     api_key: str = Depends(verify_api_key)
 ):
-    id: int = await detect(imagefile)
-    if not id:
-        raise ValueError({"No": "No"})
+    id: int | None = await detect(imagefile)
     return {"id": id}
 
 @router.post("/add-rewards", response_model=AddRewardResponse)
 async def add_rewards(
     payload: AddRewardRequest,
+    session: AsyncSession = Depends(get_async_session),
     api_key: str = Depends(verify_api_key)
-    ):
+):
+    result = await session.execute(select(User).filter(User.id == int(payload.user_id)))
+    user = result.scalars().first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
 
-    print("Received reward request:", payload)
+    reward_points = await get_reward_points(session, payload.game_code)
+    if reward_points is None:
+        raise HTTPException(status_code=400, detail="Unknown game code")
 
-    # 仮の固定レスポンス
+    user.balance += reward_points
+    user.total_balance += reward_points
+    user.total_plays += 1
+
+    await session.commit()
+    await session.refresh(user)
+
     return AddRewardResponse(
         status="success",
-        reward_added=50,
-        new_balance=150,
+        reward_added=reward_points,
+        new_balance=user.balance,
+        total_balance=user.total_balance,
     )
-
-@router.get("/marker/{user_id}")
-async def marker_endpoint(user_id: int):
-    return generate_aruco_marker(user_id)
