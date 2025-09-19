@@ -17,7 +17,6 @@ export async function postRequest<T>(endpoint: string, body: unknown, token?: st
     const res = await api.post(endpoint, body, {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
     });
-    console.log("POST", endpoint)
     return res.data;
 }
 
@@ -26,7 +25,6 @@ export async function getRequest<T>(endpoint: string, token?: string): Promise<T
     const res = await api.get(endpoint, {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
     });
-    console.log("GET: ", endpoint)
     return res.data;
 }
 

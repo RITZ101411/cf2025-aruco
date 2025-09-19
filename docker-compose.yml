@@ -1,3 +1,5 @@
+version: "3.9"
+
 services:
   backend:
     build:
@@ -5,9 +7,7 @@ services:
       dockerfile: Dockerfile
     container_name: backend-container
     ports:
-      - "8001:8000"
-    volumes:
-      - ./backend/app:/app
+      - "8000:8000"
     env_file:
       - .env
     depends_on:
@@ -24,7 +24,7 @@ services:
       MYSQL_DATABASE: mydb
       TZ: "Asia/Tokyo"
     ports:
-      - "3307:3306"
+      - "3306:3306"
     volumes:
       - db_data:/var/lib/mysql
     healthcheck:

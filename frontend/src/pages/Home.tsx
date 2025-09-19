@@ -7,7 +7,7 @@ export default function Home() {
   const [ranking, setRanking] = useState<RankingUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [sessionId, setSessionId] = useState<string | null>(null);
+  const [_, setSessionId] = useState<string | null>(null);
   const [displayName, setDisplayName] = useState<string>("NoName");
   const [totalPlays, setTotalPlays] = useState<number>(0);
   const [balance, setBalance] = useState<number>(0);

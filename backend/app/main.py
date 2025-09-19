@@ -1,9 +1,9 @@
 from fastapi import FastAPI, APIRouter
 from fastapi.staticfiles import StaticFiles
 from contextlib import asynccontextmanager
-from fastapi.responses import HTMLResponse
-from jinja2 import Environment, FileSystemLoader
+from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
+import os
 
 from db.session import engine
 from db.base import Base
@@ -17,11 +17,8 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-
 app.include_router(system.router, tags=["system"])
-
 router = APIRouter()
-
 app.include_router(router)
 
 app.add_middleware(
@@ -31,3 +28,16 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+DIST_DIR = "/app/frontend/dist"
+
+app.mount("/assets", StaticFiles(directory=os.path.join(DIST_DIR, "assets")), name="assets")
+
+@app.get("/", response_class=FileResponse)
+def serve_react_index():
+    return FileResponse(os.path.join(DIST_DIR, "index.html"))
+
+
+@app.get("/api/hello")
+def hello():
+    return {"message": "Hello from API"}
