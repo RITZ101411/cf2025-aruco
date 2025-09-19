@@ -4,7 +4,7 @@ import numpy as np
 import io
 from fastapi.responses import StreamingResponse
 
-def generate_aruco_marker(marker_id: int, size: int = 200, border_size: int = 15) -> StreamingResponse:
+def generate_aruco_marker(marker_id: int, size: int = 200, border_size: int = 30) -> StreamingResponse:
     aruco_dict = aruco.getPredefinedDictionary(aruco.DICT_4X4_1000)
 
     marker_img = aruco.generateImageMarker(aruco_dict, marker_id, size)
