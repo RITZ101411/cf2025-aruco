@@ -1,28 +1,28 @@
 import { useEffect, useState } from "react";
 import styles from "./Home.module.css";
 import type { User, RankingUser } from "../types/User";
-import { getUsers, init as initUser } from "../api/apiClient";
+import { getUsers, getRequest } from "../api/apiClient";
 
 export default function Home() {
   const [ranking, setRanking] = useState<RankingUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [session_id, setSessionId] = useState<string | null>(null);
+  const [sessionId, setSessionId] = useState<string | null>(null);
   const [displayName, setDisplayName] = useState<string>("NoName");
   const [totalPlays, setTotalPlays] = useState<number>(0);
   const [balance, setBalance] = useState<number>(0);
+  const [userId, setUserId] = useState<number>(0);
 
   useEffect(() => {
-    const initAndFetch = async () => {
+    const fetchMeAndRanking = async () => {
       try {
-        // ユーザー初期化 & ユーザー情報取得
-        const data = await initUser();
-        setSessionId(data.session_id);
-        setDisplayName(data.display_name ?? "NoName");
-        setBalance(data.balance ?? 0);
-        setTotalPlays(data.total_plays ?? 0);
+        const me = await getRequest<User>("/me");
+        setSessionId(me.session_id);
+        setDisplayName(me.display_name ?? "NoName");
+        setBalance(me.balance ?? 0);
+        setTotalPlays(me.total_plays ?? 0);
+        setUserId(me.user_id ?? 0);
 
-        // ランキング取得
         const users = await getUsers();
         if (!Array.isArray(users)) throw new Error("ランキング取得に失敗しました");
 
@@ -33,7 +33,7 @@ export default function Home() {
           }))
         );
       } catch (e: any) {
-        console.error("Init failed:", e);
+        console.error("Fetch failed:", e);
         setError(e?.message ?? "不明なエラーが発生しました");
         setRanking([]);
       } finally {
@@ -41,7 +41,7 @@ export default function Home() {
       }
     };
 
-    initAndFetch();
+    fetchMeAndRanking();
   }, []);
 
   return (
@@ -49,7 +49,7 @@ export default function Home() {
       <div className={styles.background}>
         <div className={styles.topPanel}>
           <div className={styles.marker}>
-            <img src="/src/assets/images/marker/marker.png" alt="marker" />
+            <img src={`/api/marker/${userId}`} alt="ArUco Marker" />
           </div>
           <div className={styles.balanceCard}>
             <span className={styles.balanceLabel}>残高</span>

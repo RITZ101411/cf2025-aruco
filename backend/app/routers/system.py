@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, File, UploadFile, Response, Cookie
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, desc
+from sqlalchemy import select, desc, func
 from pydantic import BaseModel
 
 from db.session import get_async_session
@@ -12,17 +12,47 @@ router = APIRouter(prefix="/api", tags=["api"])
 from schemas.system import UserIdRequest, AddBalanceRequest, AddRewardRequest, AddRewardResponse, RegisterRequest
 
 from marker.detect import detect
+from marker.marker_gen import generate_aruco_marker
 import uuid
 
+
+@router.get("/marker/{user_id}")
+async def marker_endpoint(user_id: int):
+    return generate_aruco_marker(user_id)
+
 @router.get("/me")
-async def get_me(session: AsyncSession = Depends(get_async_session), session_id: str | None = Cookie(default=None)):
+async def get_or_init_me(
+    response: Response,
+    session: AsyncSession = Depends(get_async_session),
+    session_id: str | None = Cookie(default=None)
+):
+    async def create_new_user() -> User:
+        result = await session.execute(select(func.count()).select_from(User))
+        count = result.scalar_one() or 0
+        new_session_id = str(uuid.uuid4())
+
+        new_user = User(
+            session_id=new_session_id,
+            balance=0,
+            display_name=f"ゲスト{count + 1}"
+        )
+        session.add(new_user)
+        await session.commit()
+        await session.refresh(new_user)
+
+        response.set_cookie("session_id", new_session_id, httponly=True)
+        return new_user
+
     if session_id is None:
-        raise HTTPException(status_code=401, detail="No session_id")
-    result = await session.execute(select(User).filter(User.session_id == session_id))
-    user = result.scalars().first()
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+        user = await create_new_user()
+    else:
+        result = await session.execute(select(User).filter(User.session_id == session_id))
+        user = result.scalars().first()
+        if not user:
+            user = await create_new_user()
+
     return {
+        "user_id": user.id,
         "session_id": user.session_id,
         "display_name": user.display_name,
         "balance": user.balance,
@@ -32,22 +62,7 @@ async def get_me(session: AsyncSession = Depends(get_async_session), session_id:
         "created_at": user.created_at
     }
 
-@router.get("/init")
-async def init(
-    response: Response,
-    session: AsyncSession = Depends(get_async_session),
-    session_id: str | None = Cookie(default=None)
-):
-    if session_id is None:
-        new_session_id = str(uuid.uuid4())
-
-        new_user = User(session_id=new_session_id, balance=0)
-        session.add(new_user)
-        await session.commit()
-        response.set_cookie("session_id", new_session_id, httponly=True)
-        return {"message": "new user created", "session_id": new_session_id}
-    else:
-        return {"message": "user already exists", "session_id": session_id}
+    
 
 @router.get("/get-users")
 async def get_users(
@@ -83,7 +98,6 @@ async def get_user(
     else:
         raise HTTPException(status_code=404, detail="User not found")
     
-
 @router.post("/set-balance")
 async def set_balance(
     payload: AddBalanceRequest,
@@ -128,3 +142,7 @@ async def add_rewards(
         reward_added=50,
         new_balance=150,
     )
+
+@router.get("/marker/{user_id}")
+async def marker_endpoint(user_id: int):
+    return generate_aruco_marker(user_id)

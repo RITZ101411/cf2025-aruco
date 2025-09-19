@@ -17,6 +17,7 @@ export async function postRequest<T>(endpoint: string, body: unknown, token?: st
     const res = await api.post(endpoint, body, {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
     });
+    console.log("POST", endpoint)
     return res.data;
 }
 
@@ -25,6 +26,7 @@ export async function getRequest<T>(endpoint: string, token?: string): Promise<T
     const res = await api.get(endpoint, {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
     });
+    console.log("GET: ", endpoint)
     return res.data;
 }
 
@@ -32,7 +34,8 @@ export async function getUsers(): Promise<User[]> {
     return await getRequest<User[]>("/get-users");
 }
 
-export const init = async (): Promise<User> => {
+export const meRequest = async (): Promise<User> => {
     const res = await axios.get("/api/init");
+    console.log("init")
     return res.data;
   };

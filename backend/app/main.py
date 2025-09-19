@@ -17,19 +17,10 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-app.mount("/static", StaticFiles(directory="static"), name="static")
-env = Environment(loader=FileSystemLoader("./templates"))
 
 app.include_router(system.router, tags=["system"])
 
 router = APIRouter()
-
-@router.get("/", response_class=HTMLResponse)
-async def index():
-    template = env.get_template("index.html")
-    data = "This is Data"
-    html_content = template.render(embed_data=data)
-    return html_content
 
 app.include_router(router)
 
