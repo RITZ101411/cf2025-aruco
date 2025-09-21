@@ -42,8 +42,26 @@ services:
       - ./nginx/conf.d:/etc/nginx/conf.d
       - /etc/letsencrypt/live/geoquicker.click/fullchain.pem:/etc/nginx/certs/fullchain.pem:ro
       - /etc/letsencrypt/live/geoquicker.click/privkey.pem:/etc/nginx/certs/privkey.pem:ro
+      - nginx_logs:/var/log/nginx
     depends_on:
       - backend
 
+  agent:
+    container_name: newrelic-infra
+    build:
+      context: .
+      dockerfile: newrelic-infra.dockerfile
+    cap_add:
+      - SYS_PTRACE
+    network_mode: host
+    pid: host
+    privileged: true
+    volumes:
+      - "/:/host:ro"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - nginx_logs:/var/log/nginx:ro
+    restart: unless-stopped
+
 volumes:
   db_data:
+  nginx_logs:

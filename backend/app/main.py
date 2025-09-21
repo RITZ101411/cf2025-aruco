@@ -23,7 +23,7 @@ app.include_router(router)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:443"],
+    allow_origins=["http://localhost:443","http://localhost:5173","https://ranking.monodev.cloud"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

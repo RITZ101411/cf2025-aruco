@@ -1,0 +1,14 @@
+license_key: 1f47b06671d5e1dd354077cea0ed685fFFFFNRAL
+display_name: nginx-docker-host
+log_level: info
+
+# ログ機能を有効化
+log:
+  level: info
+  format: text
+  forward: true
+
+# Docker統合を有効化
+integrations:
+  docker:
+    enabled: true
