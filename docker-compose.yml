@@ -18,7 +18,7 @@ services:
     platform: linux/amd64
     container_name: db-container
     environment:
-      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-defaultpassword}
       MYSQL_DATABASE: mydb
       TZ: "Asia/Tokyo"
     ports:
@@ -40,8 +40,8 @@ services:
       - "443:443"
     volumes:
       - ./nginx/conf.d:/etc/nginx/conf.d
-      - /etc/letsencrypt/live/geoquicker.click/fullchain.pem:/etc/nginx/certs/fullchain.pem:ro
-      - /etc/letsencrypt/live/geoquicker.click/privkey.pem:/etc/nginx/certs/privkey.pem:ro
+      - ${SSL_CERT_PATH:-./certs/fullchain.pem}:/etc/nginx/certs/fullchain.pem:ro
+      - ${SSL_KEY_PATH:-./certs/privkey.pem}:/etc/nginx/certs/privkey.pem:ro
       - nginx_logs:/var/log/nginx
     depends_on:
       - backend
