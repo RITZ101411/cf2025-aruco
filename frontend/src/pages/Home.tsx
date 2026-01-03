@@ -29,7 +29,7 @@ export default function Home() {
         setRanking(
           users.map((u: User) => ({
             name: u.display_name ?? "NoName",
-            point: u.balance ?? 0,
+            point: u.total_plays ?? 0,
           }))
         );
       } catch (e: any) {
