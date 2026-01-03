@@ -1,0 +1,67 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: backend-container
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: mysql:8.0.28
+    restart: always
+    platform: linux/amd64
+    container_name: db-container
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-defaultpassword}
+      MYSQL_DATABASE: mydb
+      TZ: "Asia/Tokyo"
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-prootpassword"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx-container
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ${SSL_CERT_PATH:-./certs/fullchain.pem}:/etc/nginx/certs/fullchain.pem:ro
+      - ${SSL_KEY_PATH:-./certs/privkey.pem}:/etc/nginx/certs/privkey.pem:ro
+      - nginx_logs:/var/log/nginx
+    depends_on:
+      - backend
+
+  agent:
+    container_name: newrelic-infra
+    build:
+      context: .
+      dockerfile: newrelic-infra.dockerfile
+    cap_add:
+      - SYS_PTRACE
+    network_mode: host
+    pid: host
+    privileged: true
+    volumes:
+      - "/:/host:ro"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - nginx_logs:/var/log/nginx:ro
+    restart: unless-stopped
+
+volumes:
+  db_data:
+  nginx_logs:

@@ -1,0 +1,14 @@
+logs:
+  - name: nginx-access-log
+    file: /var/log/nginx/access.log
+    attributes:
+      logtype: nginx-access
+      service: nginx
+      environment: production
+
+  - name: nginx-error-log
+    file: /var/log/nginx/error.log
+    attributes:
+      logtype: nginx-error
+      service: nginx
+      environment: production

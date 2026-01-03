@@ -1,0 +1,13 @@
+integrations:
+  - name: nri-nginx
+    config:
+      # nginx status URL
+      status_url: http://nginx-container:80/nginx_status
+      # nginx設定ファイルのパス
+      config_path: /etc/nginx/nginx.conf
+      # リモートモニタリング用
+      remote_monitoring: true
+    interval: 30s
+    labels:
+      env: production
+      service: nginx

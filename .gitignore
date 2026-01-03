@@ -1,0 +1,16 @@
+*.env
+
+/ArUco/
+
+settings.json
+
+.vscode
+
+/test/
+
+.DS_Store
+
+.venv
+
+__pycache__
+
